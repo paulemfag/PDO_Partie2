@@ -20,7 +20,12 @@ $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
     </thead>
     <tbody>
     <?php foreach ($patientsList AS $patient): ?>
-        <?= '<tr><td>' . $patient['id']. '</td><td>' .$patient['lastname']. '</td><td>' .$patient['firstname']. '</td><td><button type="submit" class="profile" id="' . $patient['id'] . '"><i class="far fa-id-badge"></i></td></tr>' ?>
+    <tr>
+        <td><?= $patient['id'] ?></td>
+        <td><?= $patient['lastname'] ?></td>
+        <td><?= $patient['firstname'] ?></td>
+        <td><a href="profil-patient.php?nom=<?= $patient['lastname'] ?>&amp;prénom=<?= $patient['firstname'] ?>"class="btn btn-sm btn-primary" >Voir le profil</a></td>
+    </tr>
     <?php endforeach; ?>
     </tbody>
 </table>
