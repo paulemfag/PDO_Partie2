@@ -30,10 +30,8 @@ if (isset($_POST['submit'])) {
         $errors['birthDate'] = 'Votre Date contient des caractères non autorisés !';
     }
     //contrôle téléphone
-    if (!empty($phone)) {
-        if (!preg_match($regexPhone, $phone)) {
+        if (isset($phone) && !preg_match($regexPhone, $phone)) {
             $errors['phone'] = 'Veuillez saisir un numéro de téléphone valide.';
-        }
     }
     //contrôle adresse mail
     $mailbox = trim(htmlspecialchars($_POST['mailbox']));
@@ -48,18 +46,18 @@ if (isset($_POST['submit'])) {
     <div class="form group">
         <label for="lastName">Nom :</label>
         <span class="text-danger"><?= ($errors['lastName']) ?? '' ?></span>
-        <input name="lastName" id="lastName" type="text" value="<?= $_POST['lastName'] ?? '' ?>" required>
+        <input name="lastName" id="lastName" type="text" value="<?= $_POST['lastName'] ?? '' ?>">
     </div>
     <div class="form group">
         <label for="firstName">Prénom :</label>
         <span class="text-danger"><?= ($errors['firstName']) ?? '' ?></span>
-        <input name="firstName" id="firstName" type="text" value="<?= $_POST['firstName'] ?? '' ?>" required>
+        <input name="firstName" id="firstName" type="text" value="<?= $_POST['firstName'] ?? '' ?>">
     </div>
     <div class="form group">
         <label for="birthDate">Date de naissance :</label>
         <span class="text-danger"><?= ($errors['birthDate']) ?? '' ?></span>
         <input name="birthDate" id="birthdate" placeholder="format aaaa-mm-jj" type="text"
-               value="<?= $_POST['birthDate'] ?? '' ?>" required>
+               value="<?= $_POST['birthDate'] ?? '' ?>">
     </div>
     <div class="form group">
         <label for="phone">Téléphone : ( Facultatif )</label>
@@ -69,12 +67,12 @@ if (isset($_POST['submit'])) {
     <div class="form group">
         <label for="mailbox">Adresse mail :</label>
         <span class="text-danger"><?= ($errors['mailbox']) ?? '' ?></span>
-        <input name="mailbox" id="mailbox" type="text" value="<?= $_POST['mailbox'] ?? '' ?>" required>
+        <input name="mailbox" id="mailbox" type="text" value="<?= $_POST['mailbox'] ?? '' ?>">
     </div>
     <input name="submit" type="submit" value="Envoyer">
 </form>
 <?php
-if (isset($_POST['submit']) && empty($errors['lastName']) && empty($errors['firstName']) && empty($errors['birthDate']) && empty($errors['phone']) && empty($errors['mailbox'])) {
+if (isset($_POST['submit']) && empty($errors)) {
     $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
     try {
         $dbh = new PDO($dsn, USER, PASSWORD);
