@@ -19,6 +19,6 @@
         </div>
     </nav>
 </head>
-<body>
+<body style="background-color: #343a40;">
 </body>
 </html>

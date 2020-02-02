@@ -24,7 +24,7 @@ $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
         <td><?= $patient['id'] ?></td>
         <td><?= $patient['lastname'] ?></td>
         <td><?= $patient['firstname'] ?></td>
-        <td><a href="profil-patient.php?nom=<?= $patient['lastname'] ?>&amp;prénom=<?= $patient['firstname'] ?>"class="btn btn-sm btn-primary" >Voir le profil</a></td>
+        <td><a href="profil-patient.php?nom=<?= $patient['lastname'] ?>&amp;prénom=<?= $patient['firstname'] ?>"class="btn btn-sm btn-info ml-2" ><i class="fas fa-user-circle"></i></a></td>
     </tr>
     <?php endforeach; ?>
     </tbody>

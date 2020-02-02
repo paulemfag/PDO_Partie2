@@ -30,8 +30,8 @@ if (isset($_POST['submit'])) {
         $errors['birthDate'] = 'Votre Date contient des caractères non autorisés !';
     }
     //contrôle téléphone
-        if (isset($phone) && !preg_match($regexPhone, $phone)) {
-            $errors['phone'] = 'Veuillez saisir un numéro de téléphone valide.';
+    if (!empty($phone) && !preg_match($regexPhone, $phone)) {
+        $errors['phone'] = 'Veuillez saisir un numéro de téléphone valide.';
     }
     //contrôle adresse mail
     $mailbox = trim(htmlspecialchars($_POST['mailbox']));
@@ -42,35 +42,40 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
-<form action="#" method="post" novalidate>
+<h1 class="text-light text-center">E2N | Ajouter un patient :</h1>
+<div class="container col-12">
+<form class="form bg-dark text-light" action="#" method="post" novalidate>
     <div class="form group">
-        <label for="lastName">Nom :</label>
-        <span class="text-danger"><?= ($errors['lastName']) ?? '' ?></span>
-        <input name="lastName" id="lastName" type="text" value="<?= $_POST['lastName'] ?? '' ?>">
+        <label class="form-check-label" for="lastName">Nom :</label>
+        <span class="text-danger float-right"><?= ($errors['lastName']) ?? '' ?></span>
+        <input name="lastName" class="form-control" id="lastName" type="text" value="<?= $_POST['lastName'] ?? '' ?>">
     </div>
     <div class="form group">
-        <label for="firstName">Prénom :</label>
-        <span class="text-danger"><?= ($errors['firstName']) ?? '' ?></span>
-        <input name="firstName" id="firstName" type="text" value="<?= $_POST['firstName'] ?? '' ?>">
+        <label class="form-check-label" for="firstName">Prénom :</label>
+        <span class="text-danger float-right"><?= ($errors['firstName']) ?? '' ?></span>
+        <input name="firstName" class="form-control" id="firstName" type="text"
+               value="<?= $_POST['firstName'] ?? '' ?>">
     </div>
     <div class="form group">
-        <label for="birthDate">Date de naissance :</label>
-        <span class="text-danger"><?= ($errors['birthDate']) ?? '' ?></span>
-        <input name="birthDate" id="birthdate" placeholder="format aaaa-mm-jj" type="text"
+        <label class="form-check-label" for="birthDate">Date de naissance :</label>
+        <span class="text-danger float-right"><?= ($errors['birthDate']) ?? '' ?></span>
+        <input name="birthDate" class="form-control" id="birthdate" placeholder="format aaaa-mm-jj" type="text"
                value="<?= $_POST['birthDate'] ?? '' ?>">
     </div>
     <div class="form group">
         <label for="phone">Téléphone : ( Facultatif )</label>
-        <span class="text-danger"><?= ($errors['phone']) ?? '' ?></span>
-        <input name="phone" id="phone" type="text" placeholder="0000000000" value="<?= $_POST['phone'] ?? '' ?>">
+        <span class="text-danger float-right"><?= ($errors['phone']) ?? '' ?></span>
+        <input name="phone" class="form-control" id="phone" type="text" placeholder="0000000000"
+               value="<?= $_POST['phone'] ?? '' ?>">
     </div>
     <div class="form group">
-        <label for="mailbox">Adresse mail :</label>
-        <span class="text-danger"><?= ($errors['mailbox']) ?? '' ?></span>
-        <input name="mailbox" id="mailbox" type="text" value="<?= $_POST['mailbox'] ?? '' ?>">
+        <label class="form-check-label" for="mailbox">Adresse mail :</label>
+        <span class="text-danger float-right"><?= ($errors['mailbox']) ?? '' ?></span>
+        <input name="mailbox" class="form-control" id="mailbox" type="text" value="<?= $_POST['mailbox'] ?? '' ?>">
     </div>
-    <input name="submit" type="submit" value="Envoyer">
+    <button name="submit" class="btn btn-success form-control mt-4" type="submit" value="">Modifier</button>
 </form>
+</div>
 <?php
 if (isset($_POST['submit']) && empty($errors)) {
     $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
@@ -90,7 +95,7 @@ VALUES (:lastName, :firstName, :birthDate, :phone, :mailbox)');
             ':birthDate' => $birthDate,
             ':phone' => $phone,
             ':mailbox' => $mailbox));
-        echo "Entrée ajoutée dans la table";
+        echo '<script class="bg-dark">alert("Entrée ajoutée dans la table");</script>';
     } catch (PDOException $e) {
         echo "Erreur : " . $e->getMessage();
     }
