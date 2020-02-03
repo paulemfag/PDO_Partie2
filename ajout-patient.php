@@ -6,6 +6,7 @@ $lastName = $firstName = $birthDate = $phone = $mailbox = '';
 $regexName = "/^[A-Za-zéÉ][A-Za-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ]{1,12}+((-| ?)[A-Za-záàâäãåçéèêëíìîïñóòôöõúùûüýÿæœ]{0,11})$/";
 $regexPhone = "/^0[3679]([0-9]{2}){4}$/";
 $regexDate = "/^((?:19|20)[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/";
+/*$regexDate = "/[jma]$/";*/
 $errors = [];
 if (isset($_POST['submit'])) {
     //contrôle Nom
@@ -27,7 +28,7 @@ if (isset($_POST['submit'])) {
     if (empty($birthDate)) {
         $errors['birthDate'] = 'Veuillez renseigner votre date de naissance.';
     } elseif (!preg_match($regexDate, $birthDate)) {
-        $errors['birthDate'] = 'Votre Date contient des caractères non autorisés !';
+    $errors['birthDate'] = 'Veuillez renseigner une date valide. -> Format : aaaa-mm-jj';
     }
     //contrôle téléphone
     if (!empty($phone) && !preg_match($regexPhone, $phone)) {
@@ -59,13 +60,13 @@ if (isset($_POST['submit'])) {
     <div class="form group">
         <label class="form-check-label" for="birthDate">Date de naissance :</label>
         <span class="text-danger float-right"><?= ($errors['birthDate']) ?? '' ?></span>
-        <input name="birthDate" class="form-control" id="birthdate" placeholder="format aaaa-mm-jj" type="text"
+        <input name="birthDate" class="form-control" id="birthdate" type="text" placeholder="format : aaaa-mm-jj"
                value="<?= $_POST['birthDate'] ?? '' ?>">
     </div>
     <div class="form group">
         <label for="phone">Téléphone : ( Facultatif )</label>
         <span class="text-danger float-right"><?= ($errors['phone']) ?? '' ?></span>
-        <input name="phone" class="form-control" id="phone" type="text" placeholder="0000000000"
+        <input name="phone" class="form-control" id="phone" type="text" placeholder="format : 0000000000"
                value="<?= $_POST['phone'] ?? '' ?>">
     </div>
     <div class="form group">
@@ -89,12 +90,12 @@ if (isset($_POST['submit']) && empty($errors)) {
         $mailbox = $_POST['mailbox'];
         $sth = $dbh->prepare('INSERT INTO `patients` (lastname, firstname, birthdate, phone, mail)
 VALUES (:lastName, :firstName, :birthDate, :phone, :mailbox)');
-        $sth->execute(array(
-            ':lastName' => $lastName,
-            ':firstName' => $firstName,
-            ':birthDate' => $birthDate,
-            ':phone' => $phone,
-            ':mailbox' => $mailbox));
+        $sth->bindValue(':lastName',$lastName, PDO::PARAM_STR);
+        $sth->bindValue(':firstName',$firstName, PDO::PARAM_STR);
+        $sth->bindValue(':birthDate',$birthDate, PDO::PARAM_STR);
+        $sth->bindValue(':phone',$phone, PDO::PARAM_STR);
+        $sth->bindValue(':mailbox',$mailbox, PDO::PARAM_STR);
+        $sth->execute();
         echo '<script class="bg-dark">alert("Entrée ajoutée dans la table");</script>';
     } catch (PDOException $e) {
         echo "Erreur : " . $e->getMessage();

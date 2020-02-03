@@ -15,6 +15,9 @@
                 <li class="nav-item">
                     <a class="nav-link text-light" href="http://pdop2.info/ajout-patient.php">Ajout Patient</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="http://pdop2.info/ajout-rendezvous.php">Ajout Rendez-vous</a>
+                </li>
             </ul>
         </div>
     </nav>

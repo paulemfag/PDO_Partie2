@@ -26,7 +26,7 @@ try {
     <p class="text-light">Prénom : <?= $patients['firstname'] ?></p>
     <p class="text-light">Date de naissance : <?= $patients['birthdate'] ?></p>
     <?php if (!empty($patients['phone'])) {
-    echo '<p class="text-light">Téléphone : ' . $patients['phone'] . '</p>';
+        echo '<p class="text-light">Téléphone : ' . $patients['phone'] . '</p>';
     } ?>
     <p class="text-light">Adresse mail : <?= $patients['mail'] ?></p>
     <button class="btn btn-warning" id="modify">Modifier les informations du patient</button>
@@ -78,15 +78,12 @@ if (isset($_POST['submit']) && empty($errors['lastName']) && empty($errors['firs
         $birthDate = $_POST['birthDate'];
         $phone = $_POST['phone'];
         $mailbox = $_POST['mailbox'];
-        $sth = $db->prepare('UPDATE `patients` SET `lastname` = :lastname WHERE `id` = $patient[\'id\']');
+        $sth = $db->prepare('UPDATE `patients` SET `lastname` = :lastName WHERE `id` = ?');
         /*        $sth = $db->prepare('INSERT INTO `patients` WHERE `lastname` (lastname, firstname, birthdate, phone, mail)
         VALUES (:lastName, :firstName, :birthDate, :phone, :mailbox)');*/
         $sth->execute(array(
             ':lastName' => $lastName,
-            ':firstName' => $firstName,
-            ':birthDate' => $birthDate,
-            ':phone' => $phone,
-            ':mailbox' => $mailbox));
+          ));
         echo "Entrée ajoutée dans la table";
     } catch (PDOException $e) {
         echo "Erreur : " . $e->getMessage();
