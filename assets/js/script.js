@@ -1,6 +1,6 @@
-$(document).ready(function () {
+$(function(){
     // Si le formulaire a déjà été envoyé le réaffiche avec les messages d'erreur / Span
-    if ($('#submit').attr(value === 'alreadySubmitted')){
+    if ($('#submit').attr('value') === 'alreadySubmitted'){
         $('#patientInformations').hide();
         $('#modifyInformations').show();
         $('#return').show();

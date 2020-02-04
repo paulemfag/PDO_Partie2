@@ -7,8 +7,9 @@ $regexName = "/^[A-Za-zéÉ][A-Za-záàâäãåçéèêëíìîïñóòôöõú�
 $regexPhone = "/^0[3679]([0-9]{2}){4}$/";
 $regexDate = "/^((?:19|20)[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/";
 $errors = [];
-if (isset($_POST['submit'])){
-
+if (empty($_GET['nom'])){
+    header('location: liste-patients.php');
+    exit();
 }
 try {
     $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
@@ -18,6 +19,39 @@ try {
     $patients = $req->fetch();
 } catch (Exception $ex) {
     die('Connexion échoué');
+}
+if (isset($_POST['submit'])){
+    $_POST['submit'] = 'alreadySubmitted';
+    //contrôle Nom
+    $lastName = trim(filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING));
+    if (empty($lastName)) {
+        $errors['lastName'] = 'Veuillez renseigner votre Nom.';
+    } elseif (!preg_match($regexName, $lastName)) {
+        $errors['lastName'] = 'Votre Nom contient des caractères non autorisés !';
+    }
+    //contrôle Prénom
+    $firstName = trim(filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING));
+    if (empty($firstName)) {
+        $errors['firstName'] = 'Veuillez renseigner votre Prénom.';
+    } elseif (!preg_match($regexName, $firstName)) {
+        $errors['firstName'] = 'Votre Prénom contient des caractères non autorisés !';
+    }
+    //contrôle Date de naissance
+    $birthDate = trim(filter_input(INPUT_POST, 'birthDate', FILTER_SANITIZE_STRING));
+    if (!preg_match($regexDate, $birthDate)) {
+        $errors['birthDate'] = 'Veuillez renseigner une date valide.';
+    }
+    //contrôle téléphone
+    if (!empty($phone) && !preg_match($regexPhone, $phone)) {
+        $errors['phone'] = 'Veuillez saisir un numéro de téléphone valide.';
+    }
+    //contrôle adresse mail
+    $mailbox = trim(htmlspecialchars($_POST['mailbox']));
+    if (empty($mailbox)) {
+        $errors['mailbox'] = 'Veuillez renseigner votre adresse mail.';
+    } elseif (!filter_var($mailbox, FILTER_VALIDATE_EMAIL)) {
+        $errors['mailbox'] = 'Veuillez saisir une adresse mail valide.';
+    }
 }
 ?>
 <div class="text-center" id="patientInformations">
@@ -37,35 +71,35 @@ try {
     <form action="#" method="post" novalidate>
         <div class="form group">
             <label class="text-light form-check-label" for="lastName">Nom :</label>
-            <span class="text-danger"><?= ($errors['lastName']) ?? '' ?></span>
+            <span class="text-danger float-right"><?= ($errors['lastName']) ?? '' ?></span>
             <input name="lastName" class="form-control" id="lastName" type="text"
                    placeholder="<?= $patients['lastname'] ?>" value="<?= $_POST['lastName'] ?? '' ?>">
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="firstName">Prénom :</label>
-            <span class="text-danger"><?= ($errors['firstName']) ?? '' ?></span>
+            <span class="text-danger float-right"><?= ($errors['firstName']) ?? '' ?></span>
             <input name="firstName" class="form-control" id="firstName" type="text"
                    placeholder="<?= $patients['firstname'] ?>" value="<?= $_POST['firstName'] ?? '' ?>">
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="birthDate">Date de naissance :</label>
-            <span class="text-danger"><?= ($errors['birthDate']) ?? '' ?></span>
-            <input name="birthDate" class="form-control" id="birthdate" placeholder="<?= $patients['birthdate'] ?>"
-                   type="text" value="<?= $_POST['birthdate'] ?? '' ?>">
+            <span class="text-danger float-right"><?= ($errors['birthDate']) ?? '' ?></span>
+            <input name="birthDate" class="form-control" id="birthdate"
+                   type="date" value="<?= $_POST['birthDate'] ?? '' ?>">
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="phone">Téléphone : ( Facultatif )</label>
-            <span class="text-danger"><?= ($errors['phone']) ?? '' ?></span>
+            <span class="text-danger float-right"><?= ($errors['phone']) ?? '' ?></span>
             <input name="phone" class="form-control" id="phone" type="text" placeholder="<?= $patients['phone'] ?>"
                    value="<?= $_POST['phone'] ?? '' ?>">
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="mailbox">Adresse mail :</label>
-            <span class="text-danger"><?= ($errors['mailbox']) ?? '' ?></span>
+            <span class="text-danger float-right"><?= ($errors['mailbox']) ?? '' ?></span>
             <input name="mailbox" class="form-control" id="mailbox" type="text" placeholder="<?= $patients['mail'] ?>"
                    value="<?= $_POST['mail'] ?? '' ?>">
         </div>
-        <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit" value="<?= $_POST['submit'] ?? '' ?>">Envoyer</button>
+        <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit" value="<?= $_POST['submit'] ?? '' ?>">Modifier</button>
     </form>
 </div>
 <?php

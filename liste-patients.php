@@ -8,12 +8,11 @@ try {
 } catch (Exception $ex) {
     die('Connexion échoué');
 }
-$query = 'SELECT * FROM `patients`';
+$query = 'SELECT * FROM `patients` ORDER BY `lastname` ASC';
 $patientsQueryStat = $db->query($query);
 $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
 <table class="table table-dark">
     <thead>
-    <th>id :</th>
     <th>Nom :</th>
     <th>Prénom :</th>
     <th>Profil :</th>
@@ -21,10 +20,9 @@ $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
     <tbody>
     <?php foreach ($patientsList AS $patient): ?>
     <tr>
-        <td><?= $patient['id'] ?></td>
         <td><?= $patient['lastname'] ?></td>
         <td><?= $patient['firstname'] ?></td>
-        <td><a href="profil-patient.php?nom=<?= $patient['lastname'] ?>&amp;prénom=<?= $patient['firstname'] ?>"class="btn btn-sm btn-info ml-2" ><i class="fas fa-user-circle"></i></a></td>
+        <td><a title="Profil de <?= $patient['lastname']. ' ' .$patient['firstname'] ?>" href="profil-patient.php?nom=<?= $patient['lastname'] ?>&amp;prénom=<?= $patient['firstname'] ?>"class="btn btn-sm btn-info ml-2" ><i class="fas fa-user-circle"></i></a></td>
     </tr>
     <?php endforeach; ?>
     </tbody>

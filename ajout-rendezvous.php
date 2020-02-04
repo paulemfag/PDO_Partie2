@@ -14,7 +14,40 @@ try {
 $query = 'SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients`';
 $patientsQueryStat = $db->query($query);
 $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC);
-$patientslist = '';
+$patientslist = $date = '';
+$dateRegex = '/^([1-2]{1})([0-9]{3})(-)([0-1]{1})([0-9]{1})(-)([0-3]{1})([0-9]{1})([T])([0-9]{2})(:)([0-9]{2})(:?)([0-9]{0,2}?)$/';
+echo $_POST['date'];
+if (isset($_POST['submit'])) {
+//contrôle Nom
+    if ($patientslist === '-- Sélectionner --') {
+        $errors['patientslist'] = 'Veuillez selectionner un patient.';
+    }
+//contrôle Prénom
+    $firstName = trim(filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING));
+    if (empty($firstName)) {
+        $errors['firstName'] = 'Veuillez renseigner votre Prénom.';
+    } elseif (!preg_match($regexName, $firstName)) {
+        $errors['firstName'] = 'Votre Prénom contient des caractères non autorisés !';
+    }
+//contrôle Date de Rendez vous
+    $date = trim(filter_input(INPUT_POST, 'date', FILTER_SANITIZE_STRING));
+    if (empty($date)) {
+        $errors['date'] = 'Veuillez renseigner votre date de naissance.';
+    } elseif (!preg_match($dateRegex, $date)) {
+        $errors['date'] = 'Votre Date contient des caractères non autorisés !';
+    }
+//contrôle téléphone
+    if (!empty($phone) && !preg_match($regexPhone, $phone)) {
+        $errors['phone'] = 'Veuillez saisir un numéro de téléphone valide.';
+    }
+//contrôle adresse mail
+    $mailbox = trim(htmlspecialchars($_POST['mailbox']));
+    if (empty($mailbox)) {
+        $errors['mailbox'] = 'Veuillez renseigner votre adresse mail.';
+    } elseif (!filter_var($mailbox, FILTER_VALIDATE_EMAIL)) {
+        $errors['mailbox'] = 'Veuillez saisir une adresse mail valide.';
+    }
+}
 ?>
 <div class="container col-12">
     <form action="#" method="post" novalidate>
@@ -32,7 +65,7 @@ $patientslist = '';
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="date">Date et heure :</label>
-            <span class="text-danger"><?= ($errors['lastName']) ?? '' ?></span>
+            <span class="text-danger float-right"><?= ($errors['date']) ?? '' ?></span>
             <input  class="form-control" id="date" name="date" type="datetime-local"
                     value="<?= $_POST['date'] ?? '' ?>" step="1" max="">
         </div>
@@ -54,36 +87,3 @@ $patientslist = '';
         crossorigin="anonymous"></script>
 </body>
 </html>
-<?php
-if (isset($_POST['submit'])) {
-//contrôle Nom
-if ($patientslist === '-- Sélectionner --') {
-$errors['patientslist'] = 'Veuillez selectionner un patient.';
-}
-//contrôle Prénom
-$firstName = trim(filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING));
-if (empty($firstName)) {
-$errors['firstName'] = 'Veuillez renseigner votre Prénom.';
-} elseif (!preg_match($regexName, $firstName)) {
-$errors['firstName'] = 'Votre Prénom contient des caractères non autorisés !';
-}
-//contrôle Date de naissance
-$birthDate = trim(filter_input(INPUT_POST, 'birthDate', FILTER_SANITIZE_STRING));
-if (empty($birthDate)) {
-$errors['birthDate'] = 'Veuillez renseigner votre date de naissance.';
-} elseif (!preg_match($regexDate, $birthDate)) {
-$errors['birthDate'] = 'Votre Date contient des caractères non autorisés !';
-}
-//contrôle téléphone
-if (!empty($phone) && !preg_match($regexPhone, $phone)) {
-$errors['phone'] = 'Veuillez saisir un numéro de téléphone valide.';
-}
-//contrôle adresse mail
-$mailbox = trim(htmlspecialchars($_POST['mailbox']));
-if (empty($mailbox)) {
-$errors['mailbox'] = 'Veuillez renseigner votre adresse mail.';
-} elseif (!filter_var($mailbox, FILTER_VALIDATE_EMAIL)) {
-$errors['mailbox'] = 'Veuillez saisir une adresse mail valide.';
-}
-}
-?>
