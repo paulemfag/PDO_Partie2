@@ -12,11 +12,14 @@ $query = 'SELECT * FROM `patients` ORDER BY `lastname` ASC';
 $patientsQueryStat = $db->query($query);
 $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
 <h1 class="text-center text-light">E2N | Liste des patients :</h1>
+<input type="search" id="searchPatient" name="searchPatient" aria-label="Search through site content">
+<button class="btn btn-sm btn-primary">Rechercher</button>
 <table class="table table-dark">
     <thead>
     <th>Nom :</th>
     <th>Prénom :</th>
     <th>Profil :</th>
+    <th>Supprimer le patient :</th>
     </thead>
     <tbody>
     <?php foreach ($patientsList AS $patient): ?>
@@ -24,6 +27,7 @@ $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
         <td><?= $patient['lastname'] ?></td>
         <td><?= $patient['firstname'] ?></td>
         <td><a title="Profil de <?= $patient['lastname']. ' ' .$patient['firstname'] ?>" href="profil-patient.php?nom=<?= $patient['lastname'] ?>&amp;prénom=<?= $patient['firstname'] ?>&amp;id=<?= $patient['id'] ?>" class="btn btn-sm btn-info ml-2" ><i class="fas fa-user-circle"></i></a></td>
+        <td><button class="btn btn-sm btn-danger" type="button"><i class="fas fa-user-times"></i></button></td>
     </tr>
     <?php endforeach; ?>
     </tbody>

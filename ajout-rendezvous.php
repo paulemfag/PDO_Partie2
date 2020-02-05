@@ -14,17 +14,14 @@ $query = 'SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m
 $patientsQueryStat = $db->query($query);
 $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC);
 $patientslist = $date = '';
-$dateRegex = '/^([1-2]{1})([0-9]{3})(-)([0-1]{1})([0-9]{1})(-)([0-3]{1})([0-9]{1})([T])([0-9]{2})(:)([0-9]{2})(:?)([0-9]{0,2}?)$/';
+$dateRegex = '/^([1-2]{1})([0-9]{3})(-)([0-1]{1})([0-9]{1})(-)([0-3]{1})([0-9]{1})([T])([0-9]{2})(:)([0-9]{2})$/';
 if (isset($_POST['submit'])) {
-//contrôle Select
-    $patientslist = trim(filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_NUMBER_INT));
-    if ($patientslist === '-- Sélectionner --') {
-        $errors['patientslist'] = 'Veuillez selectionner un patient.';
-    } elseif (empty($patientslist)) {
-        $errors['patientslist'] = 'test';
+    //contrôle Date de naissance
+    $date = $_POST['date'];
+    if (!preg_match($dateRegex, $date)) {
+        $errors['date'] = 'Veuillez renseigner une date et une heure valide.';
     }
 }
-echo $patientslist;
 ?>
 <h1 class="text-center text-light">E2N | Ajouter un Rendez-vous :</h1>
 <div class="container col-12">
@@ -33,9 +30,8 @@ echo $patientslist;
             <label class="text-light form-check-label" for="patientslist">Sélectionner un patient : </label>
             <span class="text-danger"><?= ($errors['patientslist']) ?? '' ?></span>
             <select id="patientslist" name="patientslist">
-                <option selected disabled><?= $_POST['patientslist'] ?? '-- Sélectionner --' ?></option>
                 <?php foreach ($patientsList AS $patient): ?>
-                    <option><?= $patient['id'] . ' ' . $patient['lastname'] . ' ' . $patient['firstname'] ?></option>
+                    <option><?= $patient['id']. ' ' .$patient['lastname'] . ' ' . $patient['firstname'] ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -52,6 +48,8 @@ echo $patientslist;
 </div>
 <?php
 if (isset($_POST['submit']) && empty($errors)) {
+    $date = $_POST['date'];
+    $patientslist = $_POST['patientslist'];
     try {
         $dbh = new PDO($dsn, USER, PASSWORD);
         $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

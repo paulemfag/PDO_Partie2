@@ -15,7 +15,7 @@ $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
 $db = new PDO($dsn, USER, PASSWORD);
 //récupération des infos du patient
 try {
-    $req = $db->prepare('SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients` WHERE `lastname` = ?');
+    $req = $db->prepare('SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d/%m/%Y\') `birthdate`, `phone`, `mail` FROM `patients` WHERE `lastname` = ?');
     $req->execute(array($_GET['nom']));
     $patients = $req->fetch();
 } catch (Exception $ex) {
@@ -115,7 +115,7 @@ if (isset($_POST['submit'])) {
             <label class="text-light form-check-label" for="mailbox">Adresse mail :</label>
             <span class="text-danger float-right"><?= ($errors['mailbox']) ?? '' ?></span>
             <input name="mailbox" class="form-control" id="mailbox" type="text" placeholder="<?= $patients['mail'] ?>"
-                   value="<?= $_POST['mail'] ?? '' ?>">
+                   value="<?= $_POST['mailbox'] ?? '' ?>">
         </div>
         <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit"
                 value="<?= $_POST['submit'] ?? '' ?>">Modifier
@@ -131,8 +131,10 @@ if (isset($_POST['submit']) && empty($errors)) {
         $birthDate = $_POST['birthDate'];
         $phone = $_POST['phone'];
         $mailbox = $_POST['mailbox'];
-        $sth = $db->prepare('UPDATE `patients` SET lastname=:lastName, WHERE `lastname` = ?');
+        $lastNameGet = $_GET['nom'];
+        $sth = $db->prepare('UPDATE `patients` SET lastname = :lastName, firstname = :firstName, birthdate = :birthDate, phone = :phone, mailbox = :mailbox WHERE `lastname` = :lastNameGet');
         $sth->execute(array(
+            $sth->bindValue(':lastNameGet', $lastNameGet, PDO::PARAM_STR),
             $sth->bindValue(':lastName', $lastName, PDO::PARAM_STR),
             $sth->bindValue(':firstName', $firstName, PDO::PARAM_STR),
             $sth->bindValue(':birthDate', $birthDate, PDO::PARAM_STR),
