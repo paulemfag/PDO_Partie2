@@ -7,20 +7,29 @@ $regexName = "/^[A-Za-zéÉ][A-Za-záàâäãåçéèêëíìîïñóòôöõú�
 $regexPhone = "/^0[3679]([0-9]{2}){4}$/";
 $regexDate = "/^((?:19|20)[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/";
 $errors = [];
-if (empty($_GET['nom'])){
+if (empty($_GET['nom'])) {
     header('location: liste-patients.php');
     exit();
 }
+$dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
+$db = new PDO($dsn, USER, PASSWORD);
+//récupération des infos du patient
 try {
-    $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
-    $db = new PDO($dsn, USER, PASSWORD);
-    $req = $db->prepare('SELECT `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients` WHERE `lastname` = ?');
+    $req = $db->prepare('SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients` WHERE `lastname` = ?');
     $req->execute(array($_GET['nom']));
     $patients = $req->fetch();
 } catch (Exception $ex) {
     die('Connexion échoué');
 }
-if (isset($_POST['submit'])){
+//récupération des infos rendez-vous du patient
+try {
+    $req = $db->prepare('SELECT DATE_FORMAT(`dateHour`, \'%d-%m-%Y\ à %HH%i\') `dateHour` FROM `appointments` WHERE `idPatients` = ? ORDER BY `dateHour` ASC');
+    $req->execute(array($_GET['id']));
+    $patientAppointments = $req->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $ex) {
+    die('Connexion échoué');
+}
+if (isset($_POST['submit'])) {
     $_POST['submit'] = 'alreadySubmitted';
     //contrôle Nom
     $lastName = trim(filter_input(INPUT_POST, 'lastName', FILTER_SANITIZE_STRING));
@@ -54,16 +63,25 @@ if (isset($_POST['submit'])){
     }
 }
 ?>
-<div class="text-center" id="patientInformations">
-    <h1 class="text-center text-light">E2N | Informations patient :</h1>
-    <p class="text-light">Nom : <?= $patients['lastname'] ?></p>
-    <p class="text-light">Prénom : <?= $patients['firstname'] ?></p>
-    <p class="text-light">Date de naissance : <?= $patients['birthdate'] ?></p>
+<div class="text-center text-light" id="patientInformations">
+    <h1>E2N | Informations patient :</h1>
+    <p>Nom : <?= $patients['lastname'] ?></p>
+    <p>Prénom : <?= $patients['firstname'] ?></p>
+    <p>Date de naissance : <?= $patients['birthdate'] ?></p>
     <?php if (!empty($patients['phone'])) {
         echo '<p class="text-light">Téléphone : ' . $patients['phone'] . '</p>';
     } ?>
     <p class="text-light">Adresse mail : <?= $patients['mail'] ?></p>
     <button class="btn btn-warning" id="modify">Modifier les informations du patient</button>
+</div>
+<div class="text-light mt-2" id="appointments">
+    <h2 class="text-center">Liste des rendez-vous :</h2>
+    <ul>
+        <?php
+        foreach ($patientAppointments as $patientAppointment) : ; ?>
+            <li><?= 'Rendez vous le ' .$patientAppointment['dateHour'] ?></li>
+        <?php endforeach; ?>
+    </ul>
 </div>
 <div class="container col-12" id="modifyInformations">
     <i id="return" class="fas fa-arrow-left ml-3 mt-3 text-primary" style="font-size: 50px;"></i>
@@ -99,12 +117,13 @@ if (isset($_POST['submit'])){
             <input name="mailbox" class="form-control" id="mailbox" type="text" placeholder="<?= $patients['mail'] ?>"
                    value="<?= $_POST['mail'] ?? '' ?>">
         </div>
-        <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit" value="<?= $_POST['submit'] ?? '' ?>">Modifier</button>
+        <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit"
+                value="<?= $_POST['submit'] ?? '' ?>">Modifier
+        </button>
     </form>
 </div>
 <?php
-if (isset($_POST['submit']) && empty($errors['lastName']) && empty($errors['firstName']) && empty($errors['birthDate']) && empty($errors['phone']) && empty($errors['mailbox'])) {
-    $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
+if (isset($_POST['submit']) && empty($errors)) {
     try {
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $lastName = $_POST['lastName'];
@@ -112,12 +131,14 @@ if (isset($_POST['submit']) && empty($errors['lastName']) && empty($errors['firs
         $birthDate = $_POST['birthDate'];
         $phone = $_POST['phone'];
         $mailbox = $_POST['mailbox'];
-        $sth = $db->prepare('UPDATE `patients` SET `lastname` = :lastName WHERE `id` = ?');
-        /*        $sth = $db->prepare('INSERT INTO `patients` WHERE `lastname` (lastname, firstname, birthdate, phone, mail)
-        VALUES (:lastName, :firstName, :birthDate, :phone, :mailbox)');*/
+        $sth = $db->prepare('UPDATE `patients` SET lastname=:lastName, WHERE `lastname` = ?');
         $sth->execute(array(
-            ':lastName' => $lastName,
-          ));
+            $sth->bindValue(':lastName', $lastName, PDO::PARAM_STR),
+            $sth->bindValue(':firstName', $firstName, PDO::PARAM_STR),
+            $sth->bindValue(':birthDate', $birthDate, PDO::PARAM_STR),
+            $sth->bindValue(':phone', $phone, PDO::PARAM_STR),
+            $sth->bindValue(':mailbox', $mailbox, PDO::PARAM_STR),
+        ));
         echo "Entrée ajoutée dans la table";
     } catch (PDOException $e) {
         echo "Erreur : " . $e->getMessage();

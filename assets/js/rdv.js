@@ -1,25 +1,22 @@
 $(function(){
     // Si le formulaire a déjà été envoyé le réaffiche avec les messages d'erreur / Span
     if ($('#submit').attr('value') === 'alreadySubmitted'){
-        $('#patientInformations').hide();
+        $('#appointmentInformations').hide();
         $('#modifyInformations').show();
         $('#return').show();
-        $('#appointments').hide();
     } else {
-    // Sinon n'affiche que les informations du patient
-        $('#patientInformations').show();
+        // Sinon n'affiche que les informations du patient
+        $('#appointmentInformations').show();
         $('#modifyInformations').hide();
         $('#return').hide();
-        $('#appointments').show();
     }
 });
 
 // Quand on clique sur modifier les informations du patient
 $('#modify').click(function () {
-    $('#patientInformations').hide();
+    $('#appointmentInformations').hide();
     $('#modifyInformations').show();
     $('#return').show();
-    $('#appointments').hide()
 });
 
 // Quand on clique sur "Envoyer" donne la valeur alreadySubmitted au bouton
@@ -29,8 +26,7 @@ $('#submit').click(function () {
 
 // Quand on clique sur la flèche retour
 $('#return').click(function () {
-    $('#patientInformations').show();
+    $('#appointmentInformations').show();
     $('#modifyInformations').hide();
     $('#return').hide();
-    $('#appointments').show()
 });

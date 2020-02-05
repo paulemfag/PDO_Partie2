@@ -8,14 +8,16 @@ try {
 } catch (Exception $ex) {
     die('Connexion échoué');
 }
-$query = 'SELECT `id`, `dateHour`, `idPatients` FROM `appointments`';
+$query = 'SELECT `id`, `dateHour`, `idPatients` FROM `appointments` ORDER BY `dateHour` ASC';
 $appointmentsQueryStat = $db->query($query);
 $appointmentsList = $appointmentsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
+<h1 class="text-center text-light">E2N | Liste des rendez-vous :</h1>
 <table class="table table-dark">
     <thead>
     <th>id :</th>
     <th>Date et heure :</th>
     <th>id du patient :</th>
+    <th>infos rendez-vous :</th>
     </thead>
     <tbody>
     <?php foreach ($appointmentsList AS $appointment): ?>
@@ -23,9 +25,9 @@ $appointmentsList = $appointmentsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
             <td><?= $appointment['id'] ?></td>
             <td><?= $appointment['dateHour'] ?></td>
             <td><?= $appointment['idPatients'] ?></td>
+            <td><a title="Infos rendez-vous" href="rendezvous.php?idpatient=<?= $appointment['idPatients'] ?>&amp;dateetheure=<?= $appointment['dateHour'] ?>"class="btn btn-sm btn-info ml-2" ><i class="fas fa-calendar-day"></i></a></td>
         </tr>
-    <?php endforeach;
-    $querybis = 'SELECT * FROM `patients` WHERE `id` = ' .$appointement['idPatients'];?>
+    <?php endforeach; ?>
     </tbody>
 </table>
 </body>

@@ -11,6 +11,7 @@ try {
 $query = 'SELECT * FROM `patients` ORDER BY `lastname` ASC';
 $patientsQueryStat = $db->query($query);
 $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
+<h1 class="text-center text-light">E2N | Liste des patients :</h1>
 <table class="table table-dark">
     <thead>
     <th>Nom :</th>
@@ -22,7 +23,7 @@ $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC); ?>
     <tr>
         <td><?= $patient['lastname'] ?></td>
         <td><?= $patient['firstname'] ?></td>
-        <td><a title="Profil de <?= $patient['lastname']. ' ' .$patient['firstname'] ?>" href="profil-patient.php?nom=<?= $patient['lastname'] ?>&amp;prénom=<?= $patient['firstname'] ?>"class="btn btn-sm btn-info ml-2" ><i class="fas fa-user-circle"></i></a></td>
+        <td><a title="Profil de <?= $patient['lastname']. ' ' .$patient['firstname'] ?>" href="profil-patient.php?nom=<?= $patient['lastname'] ?>&amp;prénom=<?= $patient['firstname'] ?>&amp;id=<?= $patient['id'] ?>" class="btn btn-sm btn-info ml-2" ><i class="fas fa-user-circle"></i></a></td>
     </tr>
     <?php endforeach; ?>
     </tbody>

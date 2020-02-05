@@ -7,73 +7,67 @@ try {
     $db = new PDO($dsn, USER, PASSWORD);
 } catch (Exception $ex) {
     die('Connexion échoué');
-} ?> <h1 class="text-center text-light">E2N | Ajouter un Rendez-vous :</h1>
-<?php
+}
 /*$query = 'SELECT `lastName`, `firstName`, DATE_FORMAT(`birthDate`, \'%d-%m-%Y\') `birthDate`, `card`, `cardNumber` FROM `patients`';*/
 /*$req = $db->prepare('SELECT `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients`');*/
-$query = 'SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients`';
+$query = 'SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients` ORDER BY `lastname` ASC';
 $patientsQueryStat = $db->query($query);
 $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC);
 $patientslist = $date = '';
 $dateRegex = '/^([1-2]{1})([0-9]{3})(-)([0-1]{1})([0-9]{1})(-)([0-3]{1})([0-9]{1})([T])([0-9]{2})(:)([0-9]{2})(:?)([0-9]{0,2}?)$/';
-echo $_POST['date'];
 if (isset($_POST['submit'])) {
-//contrôle Nom
+//contrôle Select
+    $patientslist = trim(filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_NUMBER_INT));
     if ($patientslist === '-- Sélectionner --') {
         $errors['patientslist'] = 'Veuillez selectionner un patient.';
-    }
-//contrôle Prénom
-    $firstName = trim(filter_input(INPUT_POST, 'firstName', FILTER_SANITIZE_STRING));
-    if (empty($firstName)) {
-        $errors['firstName'] = 'Veuillez renseigner votre Prénom.';
-    } elseif (!preg_match($regexName, $firstName)) {
-        $errors['firstName'] = 'Votre Prénom contient des caractères non autorisés !';
-    }
-//contrôle Date de Rendez vous
-    $date = trim(filter_input(INPUT_POST, 'date', FILTER_SANITIZE_STRING));
-    if (empty($date)) {
-        $errors['date'] = 'Veuillez renseigner votre date de naissance.';
-    } elseif (!preg_match($dateRegex, $date)) {
-        $errors['date'] = 'Votre Date contient des caractères non autorisés !';
-    }
-//contrôle téléphone
-    if (!empty($phone) && !preg_match($regexPhone, $phone)) {
-        $errors['phone'] = 'Veuillez saisir un numéro de téléphone valide.';
-    }
-//contrôle adresse mail
-    $mailbox = trim(htmlspecialchars($_POST['mailbox']));
-    if (empty($mailbox)) {
-        $errors['mailbox'] = 'Veuillez renseigner votre adresse mail.';
-    } elseif (!filter_var($mailbox, FILTER_VALIDATE_EMAIL)) {
-        $errors['mailbox'] = 'Veuillez saisir une adresse mail valide.';
+    } elseif (empty($patientslist)) {
+        $errors['patientslist'] = 'test';
     }
 }
+echo $patientslist;
 ?>
+<h1 class="text-center text-light">E2N | Ajouter un Rendez-vous :</h1>
 <div class="container col-12">
     <form action="#" method="post" novalidate>
         <div class="form-group">
-        <label class="text-light form-check-label" for="patientslist">Sélectionner un patient : </label>
-        <span class="text-danger"><?= ($errors['patientslist']) ?? '' ?></span>
-        <select id="patientslist" name="patientslist">
-            <option selected disabled><?= $_POST['patientslist'] ?? '-- Sélectionner --' ?></option>
-            <?php foreach ($patientsList AS $patient):
-                ?>
-                <option><?= $patient['id']. ' ' .$patient['lastname'] . ' ' . $patient['firstname'] ?></option>
-            <?php
-            endforeach; ?>
-        </select>
+            <label class="text-light form-check-label" for="patientslist">Sélectionner un patient : </label>
+            <span class="text-danger"><?= ($errors['patientslist']) ?? '' ?></span>
+            <select id="patientslist" name="patientslist">
+                <option selected disabled><?= $_POST['patientslist'] ?? '-- Sélectionner --' ?></option>
+                <?php foreach ($patientsList AS $patient): ?>
+                    <option><?= $patient['id'] . ' ' . $patient['lastname'] . ' ' . $patient['firstname'] ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="date">Date et heure :</label>
             <span class="text-danger float-right"><?= ($errors['date']) ?? '' ?></span>
-            <input  class="form-control" id="date" name="date" type="datetime-local"
-                    value="<?= $_POST['date'] ?? '' ?>" step="1" max="">
+            <input class="form-control" id="date" name="date" type="datetime-local"
+                   value="<?= $_POST['date'] ?? '' ?>" step="1" min="">
         </div>
         <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit"
                 value="<?= $_POST['submit'] ?? '' ?>">Envoyer
         </button>
     </form>
 </div>
+<?php
+if (isset($_POST['submit']) && empty($errors)) {
+    try {
+        $dbh = new PDO($dsn, USER, PASSWORD);
+        $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $sth = $dbh->prepare('INSERT INTO `appointments` (dateHour, idPatients)
+VALUES (:dateHour, :idPatients)');
+        $sth->bindValue(':dateHour', $date, PDO::PARAM_STR);
+        $sth->bindValue(':idPatients', $patientslist, PDO::PARAM_INT);
+        $sth->execute();
+        echo '
+<script>
+    alert("Entrée ajoutée dans la table.");
+</script>';
+    } catch (PDOException $e) {
+        echo "Erreur : " . $e->getMessage();
+    }
+} ?>
 <script src="assets/js/jquery-3.3.1.min.js"></script>
 <script src="assets/js/ajoutrdv.js"></script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
