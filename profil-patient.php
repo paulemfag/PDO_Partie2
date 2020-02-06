@@ -15,7 +15,7 @@ $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
 $db = new PDO($dsn, USER, PASSWORD);
 //récupération des infos du patient
 try {
-    $req = $db->prepare('SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d/%m/%Y\') `birthdate`, `phone`, `mail` FROM `patients` WHERE `lastname` = ?');
+    $req = $db->prepare('SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d/%m/%Y\') `birthdate`, `birthdate` AS `date`, `phone`, `mail` FROM `patients` WHERE `lastname` = ?');
     $req->execute(array($_GET['nom']));
     $patients = $req->fetch();
 } catch (Exception $ex) {
@@ -64,7 +64,7 @@ if (isset($_POST['submit'])) {
 }
 ?>
 <div class="text-center text-light" id="patientInformations">
-    <h1>E2N | Informations patient :</h1>
+    <h1>E2N | Profil Patient :</h1>
     <p>Nom : <?= $patients['lastname'] ?></p>
     <p>Prénom : <?= $patients['firstname'] ?></p>
     <p>Date de naissance : <?= $patients['birthdate'] ?></p>
@@ -79,7 +79,7 @@ if (isset($_POST['submit'])) {
     <ul>
         <?php
         foreach ($patientAppointments as $patientAppointment) : ; ?>
-            <li><?= 'Rendez vous le ' .$patientAppointment['dateHour'] ?></li>
+            <li><?= 'Rendez vous le ' . $patientAppointment['dateHour'] ?></li>
         <?php endforeach; ?>
     </ul>
 </div>
@@ -91,31 +91,51 @@ if (isset($_POST['submit'])) {
             <label class="text-light form-check-label" for="lastName">Nom :</label>
             <span class="text-danger float-right"><?= ($errors['lastName']) ?? '' ?></span>
             <input name="lastName" class="form-control" id="lastName" type="text"
-                   placeholder="<?= $patients['lastname'] ?>" value="<?= $_POST['lastName'] ?? '' ?>">
+                   value="<?php if (isset($_POST['lastName'])) {
+                       echo $_POST['lastName'];
+                   } else {
+                       echo $patients['lastname'];
+                   } ?>">
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="firstName">Prénom :</label>
             <span class="text-danger float-right"><?= ($errors['firstName']) ?? '' ?></span>
             <input name="firstName" class="form-control" id="firstName" type="text"
-                   placeholder="<?= $patients['firstname'] ?>" value="<?= $_POST['firstName'] ?? '' ?>">
+                   placeholder="<?= $patients['firstname'] ?>" value="<?php if (isset($_POST['firstName'])) {
+                echo $_POST['firstName'];
+            } else {
+                echo $patients['firstname'];
+            } ?>">
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="birthDate">Date de naissance :</label>
             <span class="text-danger float-right"><?= ($errors['birthDate']) ?? '' ?></span>
             <input name="birthDate" class="form-control" id="birthdate"
-                   type="date" value="<?= $_POST['birthDate'] ?? '' ?>">
+                   type="date" value="<?php if (isset($_POST['birthDate'])) {
+                echo $_POST['birthDate'];
+            } else {
+                echo $patients['date'];
+            } ?>">
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="phone">Téléphone : ( Facultatif )</label>
             <span class="text-danger float-right"><?= ($errors['phone']) ?? '' ?></span>
             <input name="phone" class="form-control" id="phone" type="text" placeholder="<?= $patients['phone'] ?>"
-                   value="<?= $_POST['phone'] ?? '' ?>">
+                   value="<?php if (isset($_POST['phone'])) {
+                       echo $_POST['phone'];
+                   } else {
+                       echo $patients['phone'] ?? '';
+                   } ?>">
         </div>
         <div class="form group">
             <label class="text-light form-check-label" for="mailbox">Adresse mail :</label>
             <span class="text-danger float-right"><?= ($errors['mailbox']) ?? '' ?></span>
-            <input name="mailbox" class="form-control" id="mailbox" type="text" placeholder="<?= $patients['mail'] ?>"
-                   value="<?= $_POST['mailbox'] ?? '' ?>">
+            <input name="mailbox" class="form-control" id="mailbox" type="text"
+                   value="<?php if (isset($_POST['mailbox'])) {
+                       echo $_POST['mailbox'];
+                   } else {
+                       echo $patients['mail'];
+                   } ?>">
         </div>
         <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit"
                 value="<?= $_POST['submit'] ?? '' ?>">Modifier
@@ -123,18 +143,18 @@ if (isset($_POST['submit'])) {
     </form>
 </div>
 <?php
-if (isset($_POST['submit']) && empty($errors)) {
+if (isset($_POST['submit']) && count($errors) == 0) {
+    $lastName = $_POST['lastName'];
+    $firstName = $_POST['firstName'];
+    $birthDate = $_POST['birthDate'];
+    $phone = $_POST['phone'];
+    $mailbox = $_POST['mailbox'];
+    $lastNameGet = $_GET['id'];
     try {
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $lastName = $_POST['lastName'];
-        $firstName = $_POST['firstName'];
-        $birthDate = $_POST['birthDate'];
-        $phone = $_POST['phone'];
-        $mailbox = $_POST['mailbox'];
-        $lastNameGet = $_GET['nom'];
         $sth = $db->prepare('UPDATE `patients` SET lastname = :lastName, firstname = :firstName, birthdate = :birthDate, phone = :phone, mailbox = :mailbox WHERE `lastname` = :lastNameGet');
         $sth->execute(array(
-            $sth->bindValue(':lastNameGet', $lastNameGet, PDO::PARAM_STR),
+            $sth->bindValue(':lastNameGet', $lastNameGet, PDO::PARAM_INT),
             $sth->bindValue(':lastName', $lastName, PDO::PARAM_STR),
             $sth->bindValue(':firstName', $firstName, PDO::PARAM_STR),
             $sth->bindValue(':birthDate', $birthDate, PDO::PARAM_STR),

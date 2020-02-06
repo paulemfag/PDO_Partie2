@@ -6,23 +6,42 @@ if (empty($_GET['idpatient'])){
     header('location: liste-rendezvous.php');
     exit();
 }
+$dateRegex = '/^([1-2]{1})([0-9]{3})(-)([0-1]{1})([0-9]{1})(-)([0-3]{1})([0-9]{1})([T])([0-9]{2})(:)([0-9]{2})$/';
 $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
 $db = new PDO($dsn, USER, PASSWORD);
-//rendez vous correspondant
+//récupération du rendez vous correspondant
 try {
-    $req = $db->prepare('SELECT `idPatients`, `dateHour` FROM `appointments` WHERE `idPatients` = ?');
+    $req = $db->prepare('SELECT `id`, `idPatients`, `dateHour` FROM `appointments` WHERE `idPatients` = ?');
     $req->execute(array($_GET['idpatient']));
     $appointments = $req->fetch();
 } catch (Exception $ex) {
     die('Connexion échoué');
 }
-//patient coresspondant
+//récupération du patient coresspondant
 try {
-    $req = $db->prepare('SELECT `lastname`, `firstname` FROM `patients` WHERE `id` = ?');
+    $req = $db->prepare('SELECT `id`, `lastname`, `firstname` FROM `patients` WHERE `id` = ?');
     $req->execute(array($_GET['idpatient']));
     $patients = $req->fetch();
 } catch (Exception $ex) {
     die('Connexion échoué');
+}
+//récupération des patients
+try {
+$query = 'SELECT `id`, `lastname`, `firstname` FROM `patients` ORDER BY `lastname` ASC';
+$patientsQueryStat = $db->query($query);
+$patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC);
+}  catch (Exception $ex) {
+    die('Connexion échoué');
+}
+//vérifications avant envoi
+$errors = [];
+if (isset($_POST['submit'])){
+    //contrôle Date du rendez-vous
+    $date = $_POST['date'];
+    if (!preg_match($dateRegex, $date)) {
+        $errors['date'] = 'Veuillez renseigner une date et une heure valide.';
+    }
+    $patientid = trim(filter_input(INPUT_POST, 'patientslist', FILTER_SANITIZE_NUMBER_INT));
 }
 ?>
 <div class="text-center text-light" id="appointmentInformations">
@@ -33,62 +52,46 @@ try {
     <button class="btn btn-warning" id="modify">Modifier les informations du rendez-vous</button>
 </div>
 <div class="container col-12" id="modifyInformations">
-    <i id="return" class="fas fa-arrow-left ml-3 mt-3 text-primary" style="font-size: 50px;"></i>
-    <h1 class="text-center text-light">E2N | Modifier patient :</h1>
+    <h1 class="text-center text-light">Modifier rendez-vous :</h1>
     <form action="#" method="post" novalidate>
         <div class="form group">
-            <label class="text-light form-check-label" for="lastName">Nom :</label>
-            <span class="text-danger float-right"><?= ($errors['lastName']) ?? '' ?></span>
-            <input name="lastName" class="form-control" id="lastName" type="text"
-                   placeholder="<?= $patients['lastname'] ?>" value="<?= $_POST['lastName'] ?? '' ?>">
+            <label class="text-light" for="patientlist">Patient : </label>
+            <select name="patientslist" id="patientlist">
+                <?php if (isset($_POST['submit'])){ ?>
+                    <option selected><?= $_POST['patientslist'] ?></option>
+                <?php } else { ?>
+                    <option selected><?= $patients['id']. ' ' .$patients['lastname'] . ' ' . $patients['firstname'] ?></option>
+                <?php }
+                foreach ($patientsList AS $patient): ?>
+                    <option><?= $patient['id']. ' ' .$patient['lastname'] . ' ' . $patient['firstname'] ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
-        <div class="form group">
-            <label class="text-light form-check-label" for="firstName">Prénom :</label>
-            <span class="text-danger float-right"><?= ($errors['firstName']) ?? '' ?></span>
-            <input name="firstName" class="form-control" id="firstName" type="text"
-                   placeholder="<?= $patients['firstname'] ?>" value="<?= $_POST['firstName'] ?? '' ?>">
-        </div>
-        <div class="form group">
-            <label class="text-light form-check-label" for="birthDate">Date de naissance :</label>
-            <span class="text-danger float-right"><?= ($errors['birthDate']) ?? '' ?></span>
-            <input name="birthDate" class="form-control" id="birthdate"
-                   type="date" value="<?= $_POST['birthDate'] ?? '' ?>">
-        </div>
-        <div class="form group">
-            <label class="text-light form-check-label" for="phone">Téléphone : ( Facultatif )</label>
-            <span class="text-danger float-right"><?= ($errors['phone']) ?? '' ?></span>
-            <input name="phone" class="form-control" id="phone" type="text" placeholder="<?= $patients['phone'] ?>"
-                   value="<?= $_POST['phone'] ?? '' ?>">
-        </div>
-        <div class="form group">
-            <label class="text-light form-check-label" for="mailbox">Adresse mail :</label>
-            <span class="text-danger float-right"><?= ($errors['mailbox']) ?? '' ?></span>
-            <input name="mailbox" class="form-control" id="mailbox" type="text" placeholder="<?= $patients['mail'] ?>"
-                   value="<?= $_POST['mail'] ?? '' ?>">
+        <div class="form-group">
+            <label class="text-light" for="date">Date et heure :</label>
+            <span class="text-danger float-right"><?= ($errors['date']) ?? '' ?></span>
+            <input name="date" id="date" type="datetime-local">
         </div>
         <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit" value="<?= $_POST['submit'] ?? '' ?>">Modifier</button>
     </form>
 </div>
 <?php
-if (isset($_POST['submit']) && empty($errors)) {
+if (isset($_POST['submit']) && empty($errors)){
+    echo $patientid = trim(filter_input(INPUT_POST, 'patientslist', FILTER_SANITIZE_NUMBER_INT));
     try {
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $lastName = $_POST['lastName'];
-        $firstName = $_POST['firstName'];
-        $birthDate = $_POST['birthDate'];
-        $phone = $_POST['phone'];
-        $mailbox = $_POST['mailbox'];
-        $sth = $db->prepare('UPDATE `patients` SET lastname=:lastName, WHERE `lastname` = ?');
+        $patientid = trim(filter_input(INPUT_POST, 'patientslist', FILTER_SANITIZE_NUMBER_INT));
+        $date = $_POST['date'];
+        $appointmentid = $appointments['id'];
+        $sth = $db->prepare('UPDATE `appointments` SET idPatients = :patientid, dateHour = :appointmentDateHour WHERE `id` = :appointmentid');
         $sth->execute(array(
-            $sth->bindValue(':lastName', $lastName, PDO::PARAM_STR),
-            $sth->bindValue(':firstName', $firstName, PDO::PARAM_STR),
-            $sth->bindValue(':birthDate', $birthDate, PDO::PARAM_STR),
-            $sth->bindValue(':phone', $phone, PDO::PARAM_STR),
-            $sth->bindValue(':mailbox', $mailbox, PDO::PARAM_STR),
+            $sth->bindValue(':patientid', $patientid, PDO::PARAM_INT),
+            $sth->bindValue(':appointmentDateHour', $date, PDO::PARAM_STR),
+            $sth->bindValue(':appointmentid', $appointmentid, PDO::PARAM_INT),
         ));
         echo "Entrée ajoutée dans la table";
     } catch (PDOException $e) {
-        echo "Erreur : " . $e->getMessage();
+        die('Connexion échoué');
     }
 }
 ?>

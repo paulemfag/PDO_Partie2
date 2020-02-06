@@ -19,14 +19,14 @@
                 <li class="nav-item">
                     <a class="nav-link text-light" href="http://pdop2.info/liste-patients.php">Liste Patients</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-light" href="http://pdop2.info/profil-patient.php">Profil Patient</a>
-                </li>
-                <li class="nav-item">
+
                     <a class="nav-link text-light" href="http://pdop2.info/ajout-rendezvous.php">Ajout Rendez-vous</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link text-light" href="http://pdop2.info/liste-rendezvous.php">Liste Rendez-vous</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="http://pdop2.info/ajout-patient-rendez-vous.php">Ajout Patient / Rendez-vous</a>
                 </li>
             </ul>
         </div>

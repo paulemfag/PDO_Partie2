@@ -14,9 +14,10 @@ $query = 'SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m
 $patientsQueryStat = $db->query($query);
 $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC);
 $patientslist = $date = '';
+$errors = [''];
 $dateRegex = '/^([1-2]{1})([0-9]{3})(-)([0-1]{1})([0-9]{1})(-)([0-3]{1})([0-9]{1})([T])([0-9]{2})(:)([0-9]{2})$/';
 if (isset($_POST['submit'])) {
-    //contrôle Date de naissance
+    //contrôle Date du rendez-vous
     $date = $_POST['date'];
     if (!preg_match($dateRegex, $date)) {
         $errors['date'] = 'Veuillez renseigner une date et une heure valide.';
@@ -39,7 +40,7 @@ if (isset($_POST['submit'])) {
             <label class="text-light form-check-label" for="date">Date et heure :</label>
             <span class="text-danger float-right"><?= ($errors['date']) ?? '' ?></span>
             <input class="form-control" id="date" name="date" type="datetime-local"
-                   value="<?= $_POST['date'] ?? '' ?>" step="1" min="">
+                   value="<?= $_POST['date'] ?? '' ?>"  min="">
         </div>
         <button class="btn btn-info form-control mt-4 mb-3" name="submit" id="submit" type="submit"
                 value="<?= $_POST['submit'] ?? '' ?>">Envoyer
@@ -47,8 +48,7 @@ if (isset($_POST['submit'])) {
     </form>
 </div>
 <?php
-if (isset($_POST['submit']) && empty($errors)) {
-    $date = $_POST['date'];
+if (isset($_POST['submit']) && count($errors) == 0) {
     $patientslist = $_POST['patientslist'];
     try {
         $dbh = new PDO($dsn, USER, PASSWORD);
