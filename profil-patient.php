@@ -144,24 +144,26 @@ if (isset($_POST['submit'])) {
 </div>
 <?php
 if (isset($_POST['submit']) && count($errors) == 0) {
-    $lastName = $_POST['lastName'];
-    $firstName = $_POST['firstName'];
-    $birthDate = $_POST['birthDate'];
     $phone = $_POST['phone'];
-    $mailbox = $_POST['mailbox'];
-    $lastNameGet = $_GET['id'];
+    $idGet = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
     try {
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $sth = $db->prepare('UPDATE `patients` SET lastname = :lastName, firstname = :firstName, birthdate = :birthDate, phone = :phone, mailbox = :mailbox WHERE `lastname` = :lastNameGet');
-        $sth->execute(array(
-            $sth->bindValue(':lastNameGet', $lastNameGet, PDO::PARAM_INT),
-            $sth->bindValue(':lastName', $lastName, PDO::PARAM_STR),
-            $sth->bindValue(':firstName', $firstName, PDO::PARAM_STR),
-            $sth->bindValue(':birthDate', $birthDate, PDO::PARAM_STR),
-            $sth->bindValue(':phone', $phone, PDO::PARAM_STR),
-            $sth->bindValue(':mailbox', $mailbox, PDO::PARAM_STR),
-        ));
-        echo "Entrée ajoutée dans la table";
+        $sth = $db->prepare('UPDATE `patients` SET lastname = :lastName, firstname = :firstName, birthdate = :birthDate, phone = :phone, mail = :mailbox WHERE `id` = :idGet');
+            $sth->bindValue(':idGet', $idGet, PDO::PARAM_INT);
+            $sth->bindValue(':lastName', $lastName, PDO::PARAM_STR);
+            $sth->bindValue(':firstName', $firstName, PDO::PARAM_STR);
+            $sth->bindValue(':birthDate', $birthDate, PDO::PARAM_STR);
+            $sth->bindValue(':phone', $phone, PDO::PARAM_STR);
+            $sth->bindValue(':mailbox', $mailbox, PDO::PARAM_STR);
+            $sth->execute();
+        ?>
+        <script>
+            alert("Le patient a bien été modifié");
+            function redir(){
+                self.location.href="liste-patients.php"
+            };
+            redir();
+        </script><?php
     } catch (PDOException $e) {
         echo "Erreur : " . $e->getMessage();
     }

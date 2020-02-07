@@ -8,13 +8,11 @@ try {
 } catch (Exception $ex) {
     die('Connexion échoué');
 }
-/*$query = 'SELECT `lastName`, `firstName`, DATE_FORMAT(`birthDate`, \'%d-%m-%Y\') `birthDate`, `card`, `cardNumber` FROM `patients`';*/
-/*$req = $db->prepare('SELECT `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients`');*/
 $query = 'SELECT `id`, `lastname`, `firstname`, DATE_FORMAT(`birthdate`, \'%d-%m-%Y\') `birthdate`, `phone`, `mail` FROM `patients` ORDER BY `lastname` ASC';
 $patientsQueryStat = $db->query($query);
 $patientsList = $patientsQueryStat->fetchAll(PDO::FETCH_ASSOC);
 $patientslist = $date = '';
-$errors = [''];
+$errors = [];
 $dateRegex = '/^([1-2]{1})([0-9]{3})(-)([0-1]{1})([0-9]{1})(-)([0-3]{1})([0-9]{1})([T])([0-9]{2})(:)([0-9]{2})$/';
 if (isset($_POST['submit'])) {
     //contrôle Date du rendez-vous
@@ -32,7 +30,7 @@ if (isset($_POST['submit'])) {
             <span class="text-danger"><?= ($errors['patientslist']) ?? '' ?></span>
             <select id="patientslist" name="patientslist">
                 <?php foreach ($patientsList AS $patient): ?>
-                    <option><?= $patient['id']. ' ' .$patient['lastname'] . ' ' . $patient['firstname'] ?></option>
+                    <option><?= $patient['id']. ' ' .$patient['lastname']. ' ' .$patient['firstname'] ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
