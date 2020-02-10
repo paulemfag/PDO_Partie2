@@ -58,7 +58,7 @@ VALUES (:dateHour, :idPatients)');
         $sth->execute();
         echo '
 <script>
-    alert("Entrée ajoutée dans la table.");
+    alert("Le rendez vous a bien été ajouté.");
 </script>';
     } catch (PDOException $e) {
         echo "Erreur : " . $e->getMessage();

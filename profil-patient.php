@@ -161,7 +161,7 @@ if (isset($_POST['submit']) && count($errors) == 0) {
             alert("Le patient a bien été modifié");
             function redir(){
                 self.location.href="liste-patients.php"
-            };
+            }
             redir();
         </script><?php
     } catch (PDOException $e) {
