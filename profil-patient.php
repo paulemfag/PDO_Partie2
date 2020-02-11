@@ -74,6 +74,7 @@ if (isset($_POST['submit'])) {
     <p class="text-light">Adresse mail : <?= $patients['mail'] ?></p>
     <button class="btn btn-warning" id="modify">Modifier les informations du patient</button>
 </div>
+<?php if (!empty ($patientAppointments)) : ?>
 <div class="text-light mt-2" id="appointments">
     <h2 class="text-center">Liste des rendez-vous :</h2>
     <ul>
@@ -83,6 +84,7 @@ if (isset($_POST['submit'])) {
         <?php endforeach; ?>
     </ul>
 </div>
+<?php endif; ?>
 <div class="container col-12" id="modifyInformations">
     <i id="return" class="fas fa-arrow-left ml-3 mt-3 text-primary" style="font-size: 50px;"></i>
     <h1 class="text-center text-light">E2N | Modifier patient :</h1>
