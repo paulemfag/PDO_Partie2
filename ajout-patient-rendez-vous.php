@@ -91,6 +91,7 @@ if (isset($_POST['submit'])) {
 <?php
 if (isset($_POST['submit']) && count($errors) == 0) {
     $dsn = 'mysql:dbname=' .DB. '; host=' .HOST;
+    //création patient
     try {
         $dbh = new PDO($dsn, USER, PASSWORD);
         $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -104,8 +105,16 @@ VALUES (:lastName, :firstName, :birthDate, :phone, :mailbox)');
         $sth->execute();
         echo '
 <script>
-alert("Patient ajoutée dans la table.")
+alert("Patient créer.")
 </script>';
+    } catch (PDOException $e) {
+        echo "Erreur : " . $e->getMessage();
+    }
+    try {
+        $sth = $dbh->prepare('INSERT INTO `appointments` (dateHour, idPatients)
+VALUES (:dateHour, :idPatients)');
+        $sth->bindValue(':dateHour', $date, PDO::PARAM_STR);
+        $sth->bindValue(':idPatients', $mailbox, PDO::PARAM_STR);
     } catch (PDOException $e) {
         echo "Erreur : " . $e->getMessage();
     }
