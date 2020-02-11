@@ -85,6 +85,9 @@ if (isset($_POST['submit'])) {
     </ul>
 </div>
 <?php endif; ?>
+<?php if (empty ($patientAppointments)) : ?>
+    <h1 class="text-light text-center">Aucun rendez vous de prévu</h1>
+<?php endif; ?>
 <div class="container col-12" id="modifyInformations">
     <i id="return" class="fas fa-arrow-left ml-3 mt-3 text-primary" style="font-size: 50px;"></i>
     <h1 class="text-center text-light">E2N | Modifier patient :</h1>
