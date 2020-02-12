@@ -12,8 +12,8 @@ $dsn = 'mysql:dbname=' . DB . '; host=' . HOST;
 $db = new PDO($dsn, USER, PASSWORD);
 //récupération du rendez vous correspondant
 try {
-    $req = $db->prepare('SELECT `id`, `idPatients`, DATE_FORMAT(`dateHour`, \'%Y-%m-%d\T%H:%i\') `dateHour`,`dateHour` AS `date` FROM `appointments` WHERE `idPatients` = ?');
-    $req->execute(array($_GET['idpatient']));
+    $req = $db->prepare('SELECT `id`, `idPatients`, DATE_FORMAT(`dateHour`, \'%Y-%m-%d\T%H:%i\') `dateHour`,`dateHour` AS `date` FROM `appointments` WHERE `dateHour` = ?');
+    $req->execute(array($_GET['dateetheure']));
     $appointments = $req->fetch();
 } catch (Exception $ex) {
     die('Connexion échoué');
